@@ -4,12 +4,25 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const { response } = require("express");
 const e = require("express");
+const rateLimit = require("express-rate-limit");
+const jwt = require("jsonwebtoken");
+const{ LoginResponseDTO }= require('../dtos/LoginResponseDTO')
+require("dotenv").config();
 const {
   EntityAvailable,
   SequelizeValidationError,
+  UnprocessedEntities,
+  NotFoundError,
 } = require("../errors/ErrorHandler");
 
 const router = require("express").Router();
+
+// rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 requests per windowMs
+  message: "Too many login attempts, please try again later",
+});
 
 // Register
 router.post("/register", async (req, res, next) => {
@@ -50,39 +63,68 @@ router.post("/register", async (req, res, next) => {
     if (err.name == "SequelizeValidationError") {
       const errors = err.errors;
       const messages = Object.keys(errors).map((key) => errors[key].message);
-      next(new SequelizeValidationError(`validation Error  ${messages.join(',')}`));
+      next(
+        new SequelizeValidationError(`validation Error  ${messages.join(",")}`)
+      );
     }
   }
 });
 
 //login
-router.post("/login", async (req, res) => {
+router.post("/login", limiter, async (req, res, next) => {
+  const userName = req.body.userName;
+  const password = req.body.password;
   // checking if user exits
-  await User.findOne({
+  const user = await User.findOne({
     where: {
-      userName: req.body.userName,
+      userName,
     },
-  })
-    .then(async (response) => {
-      const normalPassword = await bcrypt.compare(
-        req.body.password,
-        response.password
-      );
-      if (normalPassword || null) {
+  });
+  // Find user with matching username
+  if (!user) {
+    next(new NotFoundError());
+  } else {
+    bcrypt.compare(password, user.password, (err, result) => {
+      const loginResponseDTO = new LoginResponseDTO(user);
+      if (result) {
+        // Password is correct, create and sign JWT
+        const token = jwt.sign(
+          { id: user.id, userName: user.userName },
+          process.env.JWT_SECRET
+        );
         res
-          .status(200)
-          .json({ status: 200, message: "success", user: response });
+          .json({ success:true ,message:'Login successful' ,data:loginResponseDTO, token })
+          .status(200);
       } else {
-        res.status(422).send("wrong password");
+        // Password is incorrect, increment failed login attempts
+        // req.rateLimit.increment();
+        next(new NotFoundError("Invalid password"));
       }
-    })
-    .catch((error) => {
-      // return expection
-      res.status(422).json({
-        error: "wrong credentials",
-        message: "email and Password not matching",
-      });
     });
+  }
 });
 
 module.exports = router;
+
+{
+  // Compare password hash with provided password
+  // app.get("/profile", function (req, res) {
+  //   // Get JWT from Authorization header
+  //   const authHeader = req.headers.authorization;
+  //   if (authHeader) {
+  //     const token = authHeader.split(" ")[1];
+  //     jwt.verify(token, process.env.JWT_SECRET, function (err, user) {
+  //       if (err) {
+  //         // Token is not valid
+  //         res.status(401).json({ error: "Invalid token" });
+  //       } else {
+  //         // Token is valid, return user profile
+  //         res.json({ id: user.id, username: user.username });
+  //       }
+  //     });
+  //   } else {
+  //     // No Authorization header provided
+  //     res.status(401).json({ error: "Authorization header required" });
+  //   }
+  // });
+}

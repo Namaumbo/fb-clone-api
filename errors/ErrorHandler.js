@@ -1,4 +1,4 @@
-const HttpStatusCode = require("./Utils/HttpCodes");
+const HttpStatusCode = require("../Utils/HttpCodes");
 
 class AppError extends Error {
   constructor(message, statusCode) {
@@ -12,6 +12,12 @@ class AppError extends Error {
 class BadRequestError extends AppError {
   constructor(message) {
     super(message || "Bad Request", HttpStatusCode.BAD_REQUEST);
+  }
+}
+
+class UnprocessedEntities extends AppError {
+  constructor(message) {
+    super(message || "Bad Request", HttpStatusCode.UNPROCESSED_ENTITIES);
   }
 }
 
@@ -47,5 +53,6 @@ module.exports = {
   NotFoundError,
   EntityAvailable,
   AppError,
-  SequelizeValidationError
+  SequelizeValidationError,
+  UnprocessedEntities
 };
