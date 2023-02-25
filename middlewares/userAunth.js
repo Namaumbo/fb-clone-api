@@ -82,7 +82,7 @@ router.post("/login", limiter, async (req, res, next) => {
   });
   // Find user with matching username
   if (!user) {
-    next(new NotFoundError());
+    next(new NotFoundError('user not found'));
   } else {
     bcrypt.compare(password, user.password, (err, result) => {
       const loginResponseDTO = new LoginResponseDTO(user);
@@ -98,7 +98,7 @@ router.post("/login", limiter, async (req, res, next) => {
       } else {
         // Password is incorrect, increment failed login attempts
         // req.rateLimit.increment();
-        next(new NotFoundError("Invalid password"));
+        next(new UnprocessedEntities("Invalid password"));
       }
     });
   }

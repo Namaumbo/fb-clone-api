@@ -1,41 +1,58 @@
 const HttpStatusCode = require("../Utils/HttpCodes");
 
 class AppError extends Error {
-  constructor(message, statusCode) {
+  constructor(message, statusCode, name, code) {
     super(message);
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+    this.name = name;
+    this.code = code;
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 class BadRequestError extends AppError {
   constructor(message) {
-    super(message || "Bad Request", HttpStatusCode.BAD_REQUEST);
+    super(
+      message || "Bad Request",
+      HttpStatusCode.BAD_REQUEST,
+      "BadRequestError",
+      "BAD_REQUEST"
+    );
   }
 }
 
 class UnprocessedEntities extends AppError {
   constructor(message) {
-    super(message || "Bad Request", HttpStatusCode.UNPROCESSED_ENTITIES);
+    super(
+      message || "Bad Request",
+      HttpStatusCode.UNPROCESSED_ENTITIES,
+      "UnprocessedEntityError",
+      "UNPROCESSED_ENTITIES"
+    );
   }
 }
 
 class EntityAvailable extends AppError {
   constructor(message) {
-    super(message || "Entity Available", HttpStatusCode.ENTITY_CONFLICT);
+    super(
+      message || "Entity already Available",
+      HttpStatusCode.ENTITY_CONFLICT,
+      "EntityConflictError",
+      "ENTITY_CONFLICT"
+    );
   }
 }
 
 class ValidationError extends AppError {
   constructor(message) {
-    super(message || "validation error", HttpStatusCode.NOT_FOUND);
+    super(message || "validation error", HttpStatusCode.NOT_FOUND,'ValidationError','VALIDATION_ERROR');
   }
 }
 
 class NotFoundError extends AppError {
   constructor(message) {
-    super(message || "entity not found", HttpStatusCode.NOT_FOUND);
+    super(message || "entity not found", HttpStatusCode.NOT_FOUND,'NotFoundError','NOT_FOUND');
   }
 }
 
@@ -54,5 +71,5 @@ module.exports = {
   EntityAvailable,
   AppError,
   SequelizeValidationError,
-  UnprocessedEntities
+  UnprocessedEntities,
 };
