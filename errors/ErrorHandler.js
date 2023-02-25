@@ -46,13 +46,23 @@ class EntityAvailable extends AppError {
 
 class ValidationError extends AppError {
   constructor(message) {
-    super(message || "validation error", HttpStatusCode.NOT_FOUND,'ValidationError','VALIDATION_ERROR');
+    super(
+      message || "validation error",
+      HttpStatusCode.NOT_FOUND,
+      "ValidationError",
+      "VALIDATION_ERROR"
+    );
   }
 }
 
 class NotFoundError extends AppError {
   constructor(message) {
-    super(message || "entity not found", HttpStatusCode.NOT_FOUND,'NotFoundError','NOT_FOUND');
+    super(
+      message || "entity not found",
+      HttpStatusCode.NOT_FOUND,
+      "NotFoundError",
+      "NOT_FOUND"
+    );
   }
 }
 
