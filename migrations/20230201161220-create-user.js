@@ -14,27 +14,23 @@ module.exports = {
       firstName: {
         type: DataTypes.STRING,
         allowNull: false,
-        min:3,
-        max:30,
+       
         
       },
       lastName: {
         type: DataTypes.STRING,
         allowNull: false,
-        min:3,
-        max:30,
+      
       },
       userName:{
         type: DataTypes.STRING,
         allowNull: false,
-        min:3,
-        max:30,
+       
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        min:3,
-        max:30,
+       
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
@@ -58,6 +54,12 @@ module.exports = {
       following: { 
         type: DataTypes.ARRAY(DataTypes.UUID),
         default:[]
+      },
+      city:{
+        type:DataTypes.STRING
+      },
+      description:{
+        type:DataTypes.TEXT
       },
       phoneNumber: {
         type: DataTypes.STRING,

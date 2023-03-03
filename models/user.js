@@ -84,6 +84,21 @@ const User = connection.define(
         },
       },
     },
+    description:{
+      type: DataTypes.TEXT,
+      allowNull:true,
+      validate:{
+        min:3,
+        max:255
+      }
+    },
+    city:{
+      type:DataTypes.STRING,
+      validate:{
+        min:3,
+        max:255
+      }
+    },
     onLineStatus: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
